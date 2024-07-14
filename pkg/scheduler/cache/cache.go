@@ -520,10 +520,6 @@ func newSchedulerCache(config *rest.Config, schedulerNames []string, defaultQueu
 	if err != nil {
 		panic(fmt.Sprintf("failed init vcClient, with err: %v", err))
 	}
-	eventClient, err := kubernetes.NewForConfig(config)
-	if err != nil {
-		panic(fmt.Sprintf("failed init eventClient, with err: %v", err))
-	}
 
 	// create default queue
 	newDefaultQueue(vcClient, defaultQueue)
@@ -567,7 +563,7 @@ func newSchedulerCache(config *rest.Config, schedulerNames []string, defaultQueu
 	}
 	// Prepare event clients.
 	broadcaster := record.NewBroadcaster()
-	broadcaster.StartRecordingToSink(&corev1.EventSinkImpl{Interface: eventClient.CoreV1().Events("")})
+	broadcaster.StartRecordingToSink(&corev1.EventSinkImpl{Interface: kubeClient.CoreV1().Events("")})
 	sc.Recorder = broadcaster.NewRecorder(scheme.Scheme, v1.EventSource{Component: commonutil.GenerateComponentName(sc.schedulerNames)})
 
 	// set concurrency configuration when binding
